@@ -1,30 +1,38 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from 'axios'
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const url = 'https://randomuser.me/api/?results=5'
+export const fetchUsers = createAsyncThunk('users/fetchUsers', async (thunkAPI) => {
+  const url = 'https://jsonplaceholder.typicode.com/users'
+    try {
+      const response = await axios(url)
+      return response.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error })
+    }
+  }
+)
 
-const fetchUser = createAsyncThunk('users/fetchUsers',async(thunkAPI)=>{
- try {
-  const resp = await axios(url)
-  return resp.data;
- } catch (error) {
-    return thunkAPI.rejectWithValue('ooops smoething wrent wrong')
- }
-})
-
-const initialState = {
+const usersSlice = createSlice({
+  name: "users",
+  initialState: {
     users: [],
-    isLoading: false,
-    error: undefined,
-}
-
-
-export const usersSlice = createSlice({
-    name:'users',
-    initialState,
-    Reducers: {},
-    extraReducers: {}
-})
+    loading: false,
+    error: null,
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUsers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.users = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
+  },
+});
 
 export default usersSlice.reducer;

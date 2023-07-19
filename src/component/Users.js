@@ -1,36 +1,34 @@
-import React from 'react'
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { fetchUsers } from "../redux/users/usersSlice";
 
-function Users() {
-    const {users,isLoading,error} = useSelector((state)=>state.users);
-    const [Loading,setLoading] = useState(isLoading);
-    const [isError,setIsError] = useState(error);
 
-    if(Loading === true) {
-        return(
-            <>
-            <h1>Loading....</h1>
-            </>
-        )
-    }
-    if(isError ) {
-        return(
-            <>
-            <h1>{isError}</h1>
-            </>
-        )
-    }
+const Users = () => {
+  const dispatch = useDispatch();
+  const { users, loading, error } = useSelector((state) => state.users);
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>ERROR: {error}</div>;
+  }
+
   return (
     <>
-        {users.map((user)=>(
-             <ul key={user.id}>
-                <li>{user.firstName}</li>
-                <li>{user.secondName}</li>
-            </ul>
+      <h1>Users From API</h1>
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>{user.name}</li>
         ))}
+      </ul>
     </>
-  )
-}
+  );
+};
 
-export default Users
+export default Users;
